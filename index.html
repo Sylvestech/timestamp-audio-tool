@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timestamped Audio Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+        }
+        #transcript {
+            width: 100%;
+            height: 200px;
+        }
+        .timestamp {
+            color: blue;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        #audio-controls {
+            margin-top: 20px;
+        }
+        #formattedTranscript {
+            text-align: left;
+            white-space: pre-line;
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Timestamped Audio Player</h1>
+    
+    <input type="file" id="audioFile" accept="audio/*">
+    <audio id="audio" controls></audio>
+    
+    <h2>Transcript</h2>
+    <textarea id="transcript" placeholder="Paste transcript here..."></textarea>
+    <button onclick="processTranscript()">Process Timestamps</button>
+    
+    <div id="formattedTranscript"></div>
+    
+    <script>
+        let audio = document.getElementById("audio");
+        document.getElementById("audioFile").addEventListener("change", function(event) {
+            let file = event.target.files[0];
+            if (file) {
+                let objectURL = URL.createObjectURL(file);
+                audio.src = objectURL;
+            }
+        });
+        
+        function processTranscript() {
+            let transcript = document.getElementById("transcript").value;
+            
+            // Convert timestamps into clickable links while preserving line breaks
+            let formattedTranscript = transcript
+                .replace(/(\d{1,2}:\d{2}(?::\d{2})?)/g, '<span class="timestamp" onclick="seekAudio(\'$1\')">$1</span>')
+                .replace(/\n/g, "<br>");
+
+            document.getElementById("formattedTranscript").innerHTML = formattedTranscript;
+        }
+        
+        function seekAudio(timestamp) {
+            let parts = timestamp.split(":").map(Number);
+            let seconds = parts.length === 3 ? (parts[0] * 3600 + parts[1] * 60 + parts[2]) : (parts[0] * 60 + parts[1]);
+            audio.currentTime = seconds;
+            audio.play();
+        }
+    </script>
+</body>
+</html>
