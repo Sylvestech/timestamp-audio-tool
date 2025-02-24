@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎵 Smart Audio Player</title>
+    <title>🚀 Smart Audio Transcript Player</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #F9FAFB;
+            background-color: #F7F9FC;
             color: #2C3E50;
             max-width: 900px;
             margin: auto;
@@ -36,40 +36,42 @@
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            padding: 10px;
+            background: linear-gradient(135deg, #FF7E5F, #FEB47B);
+            padding: 12px 20px;
             border-radius: 8px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             display: flex;
-            gap: 10px;
+            gap: 15px;
+            align-items: center;
         }
         .control-btn {
-            background-color: #3498DB;
-            color: white;
+            background-color: white;
+            color: #2C3E50;
             padding: 12px 18px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s;
+            transition: transform 0.2s ease, background-color 0.3s;
         }
         .control-btn:hover {
-            background-color: #1F618D;
+            transform: scale(1.1);
+            background-color: #FFD700;
         }
         .timestamp {
-            color: #3498DB;
+            color: #FF7E5F;
             cursor: pointer;
             text-decoration: none;
             font-weight: bold;
-            transition: color 0.2s;
+            transition: all 0.3s;
             padding: 5px 10px;
             border-radius: 5px;
             display: inline-block;
         }
         .timestamp:hover {
-            color: #1F618D;
-            background-color: rgba(52, 152, 219, 0.2);
+            color: white;
+            background-color: #FF7E5F;
         }
         .highlight {
             background-color: #FFD700;
@@ -83,7 +85,7 @@
             margin-top: 15px;
             padding: 18px;
             border: 2px solid #D0D3D4;
-            background-color: #FAFAFA;
+            background-color: #FFFFFF;
             font-family: 'Poppins', sans-serif;
             line-height: 1.6;
             border-radius: 6px;
@@ -110,7 +112,7 @@
         <button class="control-btn" onclick="fastForwardAudio()">⏩ Forward 5s</button>
     </div>
     
-    <h1>🎵 Smart Audio Player</h1>
+    <h1>🚀 Smart Audio Transcript Player</h1>
     
     <div id="container">
         <h2>📜 Transcript</h2>
