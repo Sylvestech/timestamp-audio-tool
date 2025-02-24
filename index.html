@@ -133,18 +133,9 @@
         function processTranscript() {
             let transcript = document.getElementById("transcript").value;
             localStorage.setItem("savedTranscript", transcript);
-            let words = transcript.split(/(\s+)/);
-            let processedText = "";
-            
-            words.forEach(word => {
-                let match = word.match(/(\d{1,2}:(\d{2})(?::(\d{2}))?)/);
-                if (match) {
-                    processedText += `<span class="timestamp" data-time="$1" onclick="seekAudio('$1')">${word}</span>`;
-                } else {
-                    processedText += `<span class="word">${word}</span>`;
-                }
+            let processedText = transcript.replace(/(\d{1,2}):(\d{2})(?::(\d{2}))?/g, (match) => {
+                return `<span class="timestamp" data-time="${match}" onclick="seekAudio('${match}')">${match}</span>`;
             });
-            
             document.getElementById("formattedTranscript").innerHTML = processedText;
         }
         
@@ -159,6 +150,20 @@
             audio.currentTime = Math.max(0, audio.currentTime - 5);
         }
         
+        audio.addEventListener("timeupdate", function () {
+            let timestamps = [...document.querySelectorAll(".timestamp")];
+            timestamps.forEach((ts, index) => {
+                let timeParts = ts.dataset.time.split(":").map(Number);
+                let timeInSeconds = timeParts.reduce((acc, val) => acc * 60 + val, 0);
+                let nextTime = index + 1 < timestamps.length ? timestamps[index + 1].dataset.time.split(":").map(Number).reduce((acc, val) => acc * 60 + val, 0) : audio.duration;
+                
+                if (audio.currentTime >= timeInSeconds && audio.currentTime < nextTime) {
+                    timestamps.forEach(t => t.classList.remove("highlight"));
+                    ts.classList.add("highlight");
+                }
+            });
+        });
+
         window.onload = function() {
             let savedTranscript = localStorage.getItem("savedTranscript");
             if (savedTranscript) {
