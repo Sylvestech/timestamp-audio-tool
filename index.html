@@ -29,13 +29,33 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            position: relative;
         }
-        #audioFile {
-            margin-bottom: 10px;
+        #floatingControls {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
         }
-        audio {
-            width: 100%;
-            margin-bottom: 15px;
+        .control-btn {
+            background-color: #3498DB;
+            color: white;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .control-btn:hover {
+            background-color: #1F618D;
         }
         .timestamp {
             color: #3498DB;
@@ -80,40 +100,19 @@
             margin-bottom: 15px;
             box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
         }
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-        .control-btn {
-            background-color: #3498DB;
-            color: white;
-            padding: 12px 18px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-            margin: 5px;
-        }
-        .control-btn:hover {
-            background-color: #1F618D;
-        }
     </style>
 </head>
 <body>
+    <div id="floatingControls">
+        <input type="file" id="audioFile" accept="audio/*">
+        <audio id="audio" controls></audio>
+        <button class="control-btn" onclick="rewindAudio()">⏪ Rewind 5s</button>
+        <button class="control-btn" onclick="fastForwardAudio()">⏩ Forward 5s</button>
+    </div>
+    
     <h1>🎵 Smart Audio Player</h1>
     
     <div id="container">
-        <input type="file" id="audioFile" accept="audio/*">
-        <audio id="audio" controls></audio>
-        <div class="controls">
-            <button class="control-btn" onclick="rewindAudio()">⏪ Rewind 5s</button>
-            <button class="control-btn" onclick="fastForwardAudio()">⏩ Forward 5s</button>
-        </div>
-        
         <h2>📜 Transcript</h2>
         <textarea id="transcript" placeholder="📌 Paste transcript here..."></textarea>
         <button class="control-btn" onclick="processTranscript()">✨ Process Timestamps</button>
