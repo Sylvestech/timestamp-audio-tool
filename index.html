@@ -64,6 +64,18 @@
             line-height: 1.6;
             border-radius: 6px;
         }
+        #transcript {
+            width: 90%;
+            height: 120px;
+            background-color: #FFFFFF;
+            border: 2px solid #D0D3D4;
+            padding: 12px;
+            font-family: 'Poppins', sans-serif;
+            border-radius: 8px;
+            resize: none;
+            margin-bottom: 15px;
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+        }
         button {
             background-color: #3498DB;
             color: white;
@@ -86,6 +98,7 @@
     <div id="container">
         <input type="file" id="audioFile" accept="audio/*">
         <audio id="audio" controls></audio>
+        <button onclick="rewindAudio()">⏪ Rewind 5s</button>
     
         <h2>📜 Transcript</h2>
         <textarea id="transcript" placeholder="📌 Paste transcript here..."></textarea>
@@ -108,15 +121,15 @@
         function processTranscript() {
             let transcript = document.getElementById("transcript").value;
             localStorage.setItem("savedTranscript", transcript);
-            let words = transcript.split(/\s+/);
+            let words = transcript.split(/(\s+)/);
             let processedText = "";
             
             words.forEach(word => {
                 let match = word.match(/(\d{1,2}:(\d{2})(?::(\d{2}))?)/);
                 if (match) {
-                    processedText += `<span class="timestamp" data-time="$1" onclick="seekAudio('$1')">${word}</span> `;
+                    processedText += `<span class="timestamp" data-time="$1" onclick="seekAudio('$1')">${word}</span>`;
                 } else {
-                    processedText += `<span class="word">${word}</span> `;
+                    processedText += `<span class="word">${word}</span>`;
                 }
             });
             
@@ -125,12 +138,16 @@
         
         function seekAudio(timestamp) {
             let parts = timestamp.split(":").map(Number);
-            let seconds = parts.reduce((acc, val) => acc * 60 + val);
+            let seconds = parts.reduce((acc, val) => acc * 60 + val, 0);
             audio.currentTime = seconds;
             audio.play();
         }
-
-        function loadSavedProgress() {
+        
+        function rewindAudio() {
+            audio.currentTime = Math.max(0, audio.currentTime - 5);
+        }
+        
+        window.onload = function() {
             let savedTranscript = localStorage.getItem("savedTranscript");
             if (savedTranscript) {
                 document.getElementById("transcript").value = savedTranscript;
@@ -140,32 +157,7 @@
             if (savedAudio) {
                 audio.src = savedAudio;
             }
-        }
-
-        audio.addEventListener("timeupdate", function () {
-            let transcriptContainer = document.getElementById("formattedTranscript");
-            let timestamps = [...transcriptContainer.querySelectorAll(".timestamp")];
-            let words = [...transcriptContainer.querySelectorAll(".word")];
-            let currentTime = audio.currentTime;
-            
-            timestamps.forEach((timestamp, index) => {
-                let timeParts = timestamp.dataset.time.split(":").map(Number);
-                let timeInSeconds = timeParts.reduce((acc, val) => acc * 60 + val);
-                
-                if (currentTime >= timeInSeconds) {
-                    timestamps.forEach(ts => ts.classList.remove("highlight"));
-                    timestamp.classList.add("highlight");
-                }
-            });
-            
-            words.forEach(word => word.classList.remove("highlight"));
-            let estimatedIndex = Math.floor(currentTime * (words.length / audio.duration));
-            if (words[estimatedIndex]) {
-                words[estimatedIndex].classList.add("highlight");
-            }
-        });
-
-        window.onload = loadSavedProgress;
+        };
     </script>
 </body>
 </html>
