@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Timestamped Audio Player</title>
+    <title>🎵 Timestamped Audio Player</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #F0F4F8;
+            background-color: #F9FAFB;
             color: #2C3E50;
             max-width: 900px;
             margin: auto;
@@ -15,30 +16,25 @@
             text-align: center;
         }
         h1 {
-            font-size: 34px;
-            color: #34495E;
+            font-size: 36px;
+            color: #2C3E50;
             font-weight: 700;
-            padding-bottom: 10px;
             margin-bottom: 20px;
         }
         #container {
-            background: #FFFFFF;
-            padding: 25px;
+            background: white;
+            padding: 30px;
             border-radius: 12px;
             box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        #transcript {
+        #audioFile {
+            margin-bottom: 10px;
+        }
+        audio {
             width: 100%;
-            height: 120px;
-            background-color: #FAFAFA;
-            border: 2px solid #D0D3D4;
-            padding: 12px;
-            font-family: 'Poppins', sans-serif;
-            border-radius: 6px;
-            resize: none;
             margin-bottom: 15px;
         }
         .timestamp {
@@ -52,7 +48,7 @@
             color: #1F618D;
         }
         .highlight {
-            background-color: #58D68D;
+            background-color: #FFD700;
             padding: 3px 5px;
             border-radius: 4px;
             transition: background-color 0.3s ease;
@@ -85,15 +81,15 @@
     </style>
 </head>
 <body>
-    <h1>Timestamped Audio Player</h1>
+    <h1>🎵 Timestamped Audio Player</h1>
     
     <div id="container">
         <input type="file" id="audioFile" accept="audio/*">
         <audio id="audio" controls></audio>
     
-        <h2>Transcript</h2>
-        <textarea id="transcript" placeholder="Paste transcript here..."></textarea>
-        <button onclick="processTranscript()">Process Timestamps</button>
+        <h2>📜 Transcript</h2>
+        <textarea id="transcript" placeholder="📌 Paste transcript here..."></textarea>
+        <button onclick="processTranscript()">✨ Process Timestamps</button>
         
         <div id="formattedTranscript"></div>
     </div>
@@ -129,7 +125,7 @@
         
         function seekAudio(timestamp) {
             let parts = timestamp.split(":").map(Number);
-            let seconds = parts.length === 3 ? (parts[0] * 3600 + parts[1] * 60 + parts[2]) : (parts[0] * 60 + parts[1]);
+            let seconds = parts.reduce((acc, val) => acc * 60 + val);
             audio.currentTime = seconds;
             audio.play();
         }
@@ -159,15 +155,14 @@
                 if (currentTime >= timeInSeconds) {
                     timestamps.forEach(ts => ts.classList.remove("highlight"));
                     timestamp.classList.add("highlight");
-                    words.forEach(word => word.classList.remove("highlight"));
-                    let nextTime = index + 1 < timestamps.length ? timestamps[index + 1].dataset.time.split(":").map(Number).reduce((acc, val) => acc * 60 + val) : audio.duration;
-                    words.forEach((word, i) => {
-                        if (i >= timeInSeconds && i < nextTime) {
-                            word.classList.add("highlight");
-                        }
-                    });
                 }
             });
+            
+            words.forEach(word => word.classList.remove("highlight"));
+            let estimatedIndex = Math.floor(currentTime * (words.length / audio.duration));
+            if (words[estimatedIndex]) {
+                words[estimatedIndex].classList.add("highlight");
+            }
         });
 
         window.onload = loadSavedProgress;
