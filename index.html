@@ -154,15 +154,18 @@
             
             timestamps.forEach((timestamp, index) => {
                 let timeParts = timestamp.dataset.time.split(":").map(Number);
-                let timeInSeconds = timeParts.length === 3 ? (timeParts[0] * 3600 + timeParts[1] * 60 + timeParts[2]) : (timeParts[0] * 60 + timeParts[1]);
+                let timeInSeconds = timeParts.reduce((acc, val) => acc * 60 + val);
                 
                 if (currentTime >= timeInSeconds) {
                     timestamps.forEach(ts => ts.classList.remove("highlight"));
                     timestamp.classList.add("highlight");
                     words.forEach(word => word.classList.remove("highlight"));
-                    let nextTimestamp = timestamps[index + 1];
-                    let nextTime = nextTimestamp ? parseInt(nextTimestamp.dataset.time.split(":").map(Number).reduce((a, b) => a * 60 + b)) : audio.duration;
-                    words.slice(timeInSeconds, nextTime).forEach(word => word.classList.add("highlight"));
+                    let nextTime = index + 1 < timestamps.length ? timestamps[index + 1].dataset.time.split(":").map(Number).reduce((acc, val) => acc * 60 + val) : audio.duration;
+                    words.forEach((word, i) => {
+                        if (i >= timeInSeconds && i < nextTime) {
+                            word.classList.add("highlight");
+                        }
+                    });
                 }
             });
         });
