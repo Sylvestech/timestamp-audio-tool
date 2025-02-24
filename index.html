@@ -84,7 +84,7 @@
                 if (match) {
                     processedText += `<span class="timestamp" data-time="$1" onclick="seekAudio('$1')">${word}</span> `;
                 } else {
-                    processedText += `<span class="word" data-index="">${word}</span> `;
+                    processedText += `<span class="word">${word}</span> `;
                 }
             });
             
@@ -116,26 +116,21 @@
             let words = transcriptContainer.querySelectorAll(".word");
             let currentTime = audio.currentTime;
             
-            let lastTimestamp = 0;
             timestamps.forEach(timestamp => {
                 let timeParts = timestamp.dataset.time.split(":").map(Number);
                 let timeInSeconds = timeParts.length === 3 ? (timeParts[0] * 3600 + timeParts[1] * 60 + timeParts[2]) : (timeParts[0] * 60 + timeParts[1]);
                 
-                if (currentTime >= timeInSeconds) {
-                    lastTimestamp = timeInSeconds;
+                if (Math.abs(currentTime - timeInSeconds) < 1) {
                     timestamps.forEach(ts => ts.classList.remove("highlight"));
                     timestamp.classList.add("highlight");
                 }
             });
             
-            words.forEach((word, index) => {
-                let estimatedTime = lastTimestamp + (index * 0.3); // Adjusted estimated timing
-                if (currentTime >= estimatedTime) {
-                    words.forEach(w => w.classList.remove("highlight"));
-                    word.classList.add("highlight");
-                    return;
-                }
-            });
+            words.forEach(word => word.classList.remove("highlight"));
+            let estimatedIndex = Math.floor(currentTime * (words.length / audio.duration));
+            if (words[estimatedIndex]) {
+                words[estimatedIndex].classList.add("highlight");
+            }
         });
 
         window.onload = loadSavedProgress;
