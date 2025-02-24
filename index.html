@@ -69,11 +69,13 @@
             if (file) {
                 let objectURL = URL.createObjectURL(file);
                 audio.src = objectURL;
+                localStorage.setItem("audioFile", objectURL);
             }
         });
-        
+
         function processTranscript() {
             let transcript = document.getElementById("transcript").value;
+            localStorage.setItem("savedTranscript", transcript);
             let words = transcript.split(/\s+/);
             let processedText = "";
             
@@ -95,7 +97,19 @@
             audio.currentTime = seconds;
             audio.play();
         }
-        
+
+        function loadSavedProgress() {
+            let savedTranscript = localStorage.getItem("savedTranscript");
+            if (savedTranscript) {
+                document.getElementById("transcript").value = savedTranscript;
+                processTranscript();
+            }
+            let savedAudio = localStorage.getItem("audioFile");
+            if (savedAudio) {
+                audio.src = savedAudio;
+            }
+        }
+
         audio.addEventListener("timeupdate", function () {
             let transcriptContainer = document.getElementById("formattedTranscript");
             let timestamps = transcriptContainer.querySelectorAll(".timestamp");
@@ -119,9 +133,12 @@
                 if (currentTime >= estimatedTime) {
                     words.forEach(w => w.classList.remove("highlight"));
                     word.classList.add("highlight");
+                    return;
                 }
             });
         });
+
+        window.onload = loadSavedProgress;
     </script>
 </body>
 </html>
