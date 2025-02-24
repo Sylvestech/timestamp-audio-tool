@@ -8,9 +8,9 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #F9FAFB;
+            background-color: #F4F7FA;
             color: #2C3E50;
-            max-width: 900px;
+            max-width: 1000px;
             margin: auto;
             padding: 20px;
             text-align: center;
@@ -43,6 +43,9 @@
             text-decoration: underline;
             font-weight: bold;
             transition: color 0.2s;
+            display: block;
+            text-align: left;
+            padding: 5px;
         }
         .timestamp:hover {
             color: #1F618D;
@@ -90,6 +93,13 @@
         button:hover {
             background-color: #1F618D;
         }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -98,8 +108,10 @@
     <div id="container">
         <input type="file" id="audioFile" accept="audio/*">
         <audio id="audio" controls></audio>
-        <button onclick="rewindAudio()">⏪ Rewind 5s</button>
-    
+        <div class="controls">
+            <button onclick="rewindAudio()">⏪ Rewind 5s</button>
+        </div>
+        
         <h2>📜 Transcript</h2>
         <textarea id="transcript" placeholder="📌 Paste transcript here..."></textarea>
         <button onclick="processTranscript()">✨ Process Timestamps</button>
