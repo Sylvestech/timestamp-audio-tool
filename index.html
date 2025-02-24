@@ -82,7 +82,7 @@
                 if (match) {
                     processedText += `<span class="timestamp" data-time="$1" onclick="seekAudio('$1')">${word}</span> `;
                 } else {
-                    processedText += `<span class="word">${word}</span> `;
+                    processedText += `<span class="word" data-index="">${word}</span> `;
                 }
             });
             
@@ -98,8 +98,8 @@
         
         audio.addEventListener("timeupdate", function () {
             let transcriptContainer = document.getElementById("formattedTranscript");
-            let words = transcriptContainer.querySelectorAll(".word");
             let timestamps = transcriptContainer.querySelectorAll(".timestamp");
+            let words = transcriptContainer.querySelectorAll(".word");
             let currentTime = audio.currentTime;
             
             let lastTimestamp = 0;
@@ -109,18 +109,16 @@
                 
                 if (currentTime >= timeInSeconds) {
                     lastTimestamp = timeInSeconds;
+                    timestamps.forEach(ts => ts.classList.remove("highlight"));
                     timestamp.classList.add("highlight");
-                } else {
-                    timestamp.classList.remove("highlight");
                 }
             });
             
             words.forEach((word, index) => {
-                let estimatedTime = lastTimestamp + (index * 0.5); // Adjust timing based on estimated speech speed
+                let estimatedTime = lastTimestamp + (index * 0.3); // Adjusted estimated timing
                 if (currentTime >= estimatedTime) {
+                    words.forEach(w => w.classList.remove("highlight"));
                     word.classList.add("highlight");
-                } else {
-                    word.classList.remove("highlight");
                 }
             });
         });
