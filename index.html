@@ -77,7 +77,7 @@
             
             // Convert timestamps into clickable links while preserving line breaks
             let formattedTranscript = transcript
-                .replace(/(\d{1,2}:(\d{2})(?::(\d{2}))?)/g, '<span class="timestamp" onclick="seekAudio(\'$1\')">$1</span>')
+                .replace(/(\d{1,2}:(\d{2})(?::(\d{2}))?)/g, '<span class="timestamp" data-time="$1" onclick="seekAudio(\'$1\')">$1</span>')
                 .replace(/\n/g, "<br>");
 
             document.getElementById("formattedTranscript").innerHTML = formattedTranscript;
@@ -90,21 +90,29 @@
             audio.play();
         }
         
-        // Highlighting active text while audio plays
+        // Highlighting words progressively while audio plays
         audio.addEventListener("timeupdate", function () {
             let transcriptContainer = document.getElementById("formattedTranscript");
-            let timestamps = transcriptContainer.querySelectorAll(".timestamp");
-            timestamps.forEach(timestamp => {
-                let timeValue = timestamp.innerText;
-                let timeParts = timeValue.split(":").map(Number);
-                let timeInSeconds = timeParts.length === 3 ? (timeParts[0] * 3600 + timeParts[1] * 60 + timeParts[2]) : (timeParts[0] * 60 + timeParts[1]);
-                
-                if (Math.abs(audio.currentTime - timeInSeconds) < 1) { 
-                    timestamp.classList.add("highlight");
+            let words = transcriptContainer.innerText.split(" ");
+            let wordsHTML = "";
+            let currentTime = audio.currentTime;
+            
+            words.forEach((word, index) => {
+                let match = word.match(/(\d{1,2}:(\d{2})(?::(\d{2}))?)/);
+                if (match) {
+                    let parts = match[1].split(":").map(Number);
+                    let wordTime = parts.length === 3 ? (parts[0] * 3600 + parts[1] * 60 + parts[2]) : (parts[0] * 60 + parts[1]);
+                    if (currentTime >= wordTime) {
+                        wordsHTML += `<span class='highlight'>${word}</span> `;
+                    } else {
+                        wordsHTML += `${word} `;
+                    }
                 } else {
-                    timestamp.classList.remove("highlight");
+                    wordsHTML += `${word} `;
                 }
             });
+            
+            transcriptContainer.innerHTML = wordsHTML;
         });
     </script>
 </body>
