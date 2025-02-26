@@ -16,11 +16,10 @@
             text-align: center;
         }
         h1 {
-            font-size: 36px;
+            font-size: 32px;
             color: #2C3E50;
             font-weight: 700;
-            margin-top: 160px;
-            margin-bottom: 20px;
+            margin-top: 120px;
         }
         #container {
             background: white;
@@ -34,37 +33,31 @@
         }
         #floatingControls {
             position: fixed;
-            top: 140px;
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(135deg, #FF7E5F, #FEB47B);
-            padding: 12px 20px;
-            border-radius: 8px;
+            background: white;
+            padding: 12px 30px;
+            border-radius: 12px;
             box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             display: flex;
-            flex-direction: column;
+            gap: 15px;
             align-items: center;
-            gap: 10px;
-        }
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
         }
         .control-btn {
-            background-color: white;
-            color: #2C3E50;
-            padding: 12px 18px;
+            background-color: #6C63FF;
+            color: white;
+            padding: 10px 15px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             transition: transform 0.2s ease, background-color 0.3s;
         }
         .control-btn:hover {
+            background-color: #FF7E67;
             transform: scale(1.1);
-            background-color: #FFD700;
         }
         .timestamp {
             color: #FF7E5F;
@@ -97,28 +90,14 @@
             line-height: 1.6;
             border-radius: 6px;
         }
-        #transcript {
-            width: 90%;
-            height: 120px;
-            background-color: #FFFFFF;
-            border: 2px solid #D0D3D4;
-            padding: 12px;
-            font-family: 'Poppins', sans-serif;
-            border-radius: 8px;
-            resize: none;
-            margin-bottom: 15px;
-            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-        }
     </style>
 </head>
 <body>
     <div id="floatingControls">
         <input type="file" id="audioFile" accept="audio/*">
         <audio id="audio" controls></audio>
-        <div class="controls">
-            <button class="control-btn" onclick="rewindAudio()">⏪ Rewind 5s</button>
-            <button class="control-btn" onclick="fastForwardAudio()">⏩ Forward 5s</button>
-        </div>
+        <button class="control-btn" onclick="rewindAudio()">⏪ 5s</button>
+        <button class="control-btn" onclick="fastForwardAudio()">⏩ 5s</button>
     </div>
     
     <h1>🚀 Smart Audio Transcript Player</h1>
@@ -133,18 +112,8 @@
     
     <script>
         let audio = document.getElementById("audio");
-        document.getElementById("audioFile").addEventListener("change", function(event) {
-            let file = event.target.files[0];
-            if (file) {
-                let objectURL = URL.createObjectURL(file);
-                audio.src = objectURL;
-                localStorage.setItem("audioFile", objectURL);
-            }
-        });
-
         function processTranscript() {
             let transcript = document.getElementById("transcript").value;
-            localStorage.setItem("savedTranscript", transcript);
             let processedText = transcript.replace(/(\d{1,2}):(\d{2})(?::(\d{2}))?/g, (match) => {
                 return `<span class="timestamp" data-time="${match}" onclick="seekAudio('${match}')">${match}</span>`;
             });
