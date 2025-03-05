@@ -8,8 +8,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #F7F9FC;
-            color: #2C3E50;
+            background-color: #004812;
+            color: #FFFFFF;
             max-width: 900px;
             margin: auto;
             padding: 20px;
@@ -17,36 +17,38 @@
         }
         h1 {
             font-size: 32px;
-            color: #2C3E50;
+            color: #F4EBD0;
             font-weight: 700;
             margin-top: 120px;
         }
         #container {
-            background: white;
+            background: #F4EBD0;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
+            color: #1E4620;
         }
         #floatingControls {
             position: fixed;
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            background: white;
+            background: #F4EBD0;
             padding: 12px 30px;
             border-radius: 12px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
             z-index: 1000;
             display: flex;
             gap: 15px;
             align-items: center;
+            color: #1E4620;
         }
         .control-btn {
-            background-color: #6C63FF;
+            background-color: #006837;
             color: white;
             padding: 10px 15px;
             border: none;
@@ -56,11 +58,11 @@
             transition: transform 0.2s ease, background-color 0.3s;
         }
         .control-btn:hover {
-            background-color: #FF7E67;
+            background-color: #A8C686;
             transform: scale(1.1);
         }
         .timestamp {
-            color: #FF7E5F;
+            color: #FFDD57;
             cursor: pointer;
             text-decoration: none;
             font-weight: bold;
@@ -71,10 +73,10 @@
         }
         .timestamp:hover {
             color: white;
-            background-color: #FF7E5F;
+            background-color: #FFDD57;
         }
         .highlight {
-            background-color: #FFD700;
+            background-color: #A8C686;
             padding: 3px 5px;
             border-radius: 4px;
             transition: background-color 0.3s ease;
@@ -95,7 +97,7 @@
 <body>
     <div id="floatingControls">
         <input type="file" id="audioFile" accept="audio/*">
-        <audio id="audio" controls></audio>
+        <audio id="audioElement" controls></audio>
         <button class="control-btn" onclick="rewindAudio()">⏪ 5s</button>
         <button class="control-btn" onclick="fastForwardAudio()">⏩ 5s</button>
     </div>
@@ -111,29 +113,49 @@
     </div>
     
     <script>
-        let audio = document.getElementById("audio");
+        let audioElement = document.getElementById("audioElement");
+        let timestamps = [];
+
         function processTranscript() {
             let transcript = document.getElementById("transcript").value;
             let processedText = transcript.replace(/(\d{1,2}):(\d{2})(?::(\d{2}))?/g, (match) => {
                 return `<span class="timestamp" data-time="${match}" onclick="seekAudio('${match}')">${match}</span>`;
             });
             document.getElementById("formattedTranscript").innerHTML = processedText;
+
+            timestamps = Array.from(document.querySelectorAll(".timestamp"));
         }
-        
-        function seekAudio(timestamp) {
-            let parts = timestamp.split(":").map(Number);
-            let seconds = parts.reduce((acc, val) => acc * 60 + val, 0);
-            audio.currentTime = seconds;
-            audio.play();
+
+        function convertToSeconds(time) {
+            let parts = time.split(":").map(Number);
+            return parts.reduce((acc, val) => acc * 60 + val, 0);
         }
-        
+
+        function seekAudio(timeString) {
+            let seconds = convertToSeconds(timeString);
+            audioElement.currentTime = seconds;
+            audioElement.play();
+        }
+
         function rewindAudio() {
-            audio.currentTime = Math.max(0, audio.currentTime - 5);
+            audioElement.currentTime = Math.max(0, audioElement.currentTime - 5);
         }
-        
+
         function fastForwardAudio() {
-            audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+            audioElement.currentTime = Math.min(audioElement.duration, audioElement.currentTime + 5);
         }
+
+        audioElement.addEventListener("timeupdate", () => {
+            timestamps.forEach((timestamp, idx) => {
+                let start = convertToSeconds(timestamp.dataset.time);
+                let end = timestamps[idx + 1] ? convertToSeconds(timestamps[idx + 1].dataset.time) : audioElement.duration;
+                if (audioElement.currentTime >= start && audioElement.currentTime < end) {
+                    timestamp.classList.add("highlight");
+                } else {
+                    timestamp.classList.remove("highlight");
+                }
+            });
+        });
     </script>
 </body>
 </html>
