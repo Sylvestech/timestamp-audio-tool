@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Smart Audio Transcript Player</title>
+    <title>🎧 Smart Audio Transcript Player</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #004812;
-            color: #FFFFFF;
+            background-color: #F5F7FA;
+            color: #2C3E50;
             max-width: 900px;
             margin: auto;
             padding: 20px;
@@ -17,38 +17,35 @@
         }
         h1 {
             font-size: 32px;
-            color: #F4EBD0;
             font-weight: 700;
-            margin-top: 120px;
+            margin-top: 80px;
         }
         #container {
-            background: #F4EBD0;
+            background: white;
             padding: 30px;
             border-radius: 12px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
             position: relative;
-            color: #1E4620;
         }
         #floatingControls {
             position: fixed;
             top: 10px;
             left: 50%;
             transform: translateX(-50%);
-            background: #F4EBD0;
+            background: white;
             padding: 12px 30px;
             border-radius: 12px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             display: flex;
             gap: 15px;
             align-items: center;
-            color: #1E4620;
         }
         .control-btn {
-            background-color: #006837;
+            background-color: #3498db;
             color: white;
             padding: 10px 15px;
             border: none;
@@ -58,28 +55,25 @@
             transition: transform 0.2s ease, background-color 0.3s;
         }
         .control-btn:hover {
-            background-color: #A8C686;
+            background-color: #2C3E50;
             transform: scale(1.1);
         }
         .timestamp {
-            color: #FFDD57;
+            color: #3498db;
             cursor: pointer;
-            text-decoration: none;
             font-weight: bold;
-            transition: all 0.3s;
             padding: 5px 10px;
             border-radius: 5px;
             display: inline-block;
         }
         .timestamp:hover {
             color: white;
-            background-color: #FFDD57;
+            background-color: #3498db;
         }
         .highlight {
-            background-color: #A8C686;
+            background-color: #FFD700;
             padding: 3px 5px;
             border-radius: 4px;
-            transition: background-color 0.3s ease;
         }
         #formattedTranscript {
             text-align: left;
@@ -89,8 +83,9 @@
             border: 2px solid #D0D3D4;
             background-color: #FFFFFF;
             font-family: 'Poppins', sans-serif;
-            line-height: 1.6;
+            line-height: 1.8;
             border-radius: 6px;
+            width: 100%;
         }
     </style>
 </head>
@@ -98,11 +93,12 @@
     <div id="floatingControls">
         <input type="file" id="audioFile" accept="audio/*">
         <audio id="audioElement" controls></audio>
+        <span id="currentTime">0:00</span> / <span id="totalTime">0:00</span>
         <button class="control-btn" onclick="rewindAudio()">⏪ 5s</button>
         <button class="control-btn" onclick="fastForwardAudio()">⏩ 5s</button>
     </div>
     
-    <h1>🚀 Smart Audio Transcript Player</h1>
+    <h1>🎧 Smart Audio Transcript Player</h1>
     
     <div id="container">
         <h2>📜 Transcript</h2>
@@ -116,14 +112,26 @@
         let audioElement = document.getElementById("audioElement");
         let timestamps = [];
 
+        document.getElementById("audioFile").addEventListener("change", function(event) {
+            let file = event.target.files[0];
+            if (file) {
+                audioElement.src = URL.createObjectURL(file);
+            }
+        });
+
         function processTranscript() {
             let transcript = document.getElementById("transcript").value;
-            let processedText = transcript.replace(/(\d{1,2}):(\d{2})(?::(\d{2}))?/g, (match) => {
-                return `<span class="timestamp" data-time="${match}" onclick="seekAudio('${match}')">${match}</span>`;
-            });
-            document.getElementById("formattedTranscript").innerHTML = processedText;
+            let formattedText = "";
+            let splitTranscript = transcript.split(/(\d{1,2}:\d{2}(?::\d{2})?)/g).filter(s => s.trim() !== "");
+            timestamps = [];
 
-            timestamps = Array.from(document.querySelectorAll(".timestamp"));
+            for (let i = 0; i < splitTranscript.length; i += 2) {
+                let time = splitTranscript[i].trim();
+                let text = splitTranscript[i + 1] ? splitTranscript[i + 1].trim() : "";
+                formattedText += `<p><span class="timestamp" data-time="${time}" onclick="seekAudio('${time}')">${time}</span> ${text}</p>`;
+                timestamps.push(time);
+            }
+            document.getElementById("formattedTranscript").innerHTML = formattedText;
         }
 
         function convertToSeconds(time) {
@@ -146,13 +154,20 @@
         }
 
         audioElement.addEventListener("timeupdate", () => {
+            document.getElementById("currentTime").innerText = new Date(audioElement.currentTime * 1000).toISOString().substr(14, 5);
+            document.getElementById("totalTime").innerText = new Date(audioElement.duration * 1000).toISOString().substr(14, 5);
+            
+            let currentTime = audioElement.currentTime;
             timestamps.forEach((timestamp, idx) => {
-                let start = convertToSeconds(timestamp.dataset.time);
-                let end = timestamps[idx + 1] ? convertToSeconds(timestamps[idx + 1].dataset.time) : audioElement.duration;
-                if (audioElement.currentTime >= start && audioElement.currentTime < end) {
-                    timestamp.classList.add("highlight");
-                } else {
-                    timestamp.classList.remove("highlight");
+                let start = convertToSeconds(timestamp);
+                let end = timestamps[idx + 1] ? convertToSeconds(timestamps[idx + 1]) : audioElement.duration;
+                let element = document.querySelector(`.timestamp[data-time='${timestamp}']`);
+                if (element) {
+                    if (currentTime >= start && currentTime < end) {
+                        element.classList.add("highlight");
+                    } else {
+                        element.classList.remove("highlight");
+                    }
                 }
             });
         });
